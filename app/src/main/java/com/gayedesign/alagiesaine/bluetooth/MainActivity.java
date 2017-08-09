@@ -1,78 +1,57 @@
-package com.gayedesign.alagiesaine.bluetooth;
+package com.gayedesign.alagiesaine.learnbasics;
 
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
-import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.ListView;
-import android.widget.Toast;
-
-import java.util.ArrayList;
-import java.util.Set;
+import android.support.design.widget.TabLayout;
+import android.support.v4.view.ViewPager;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 
 public class MainActivity extends AppCompatActivity {
-    BluetoothAdapter bluetoothAdapter;
-    ListView listView;
-    Set<BluetoothDevice> pairedDevices;
-    Button onButton,offButton,discoverableButton,pairedDevicesButton,cancelDescovery;
+    private TabLayout tabLayout;
+    private ViewPager viewPager;
+    private PagerFragment pagerFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
-        onButton = (Button) findViewById(R.id.onButton);
-        offButton = (Button) findViewById(R.id.offButton);
-        discoverableButton = (Button) findViewById(R.id.discoverableButton);
-        pairedDevicesButton = (Button) findViewById(R.id.pairedDevicesButton);
-        cancelDescovery = (Button) findViewById(R.id.cancelDescovery);
-        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        listView = (ListView) findViewById(R.id.listView);
-    }
+        tabLayout = (TabLayout) findViewById(R.id.tabLayout);
+        viewPager = (ViewPager) findViewById(R.id.viewPager);
+        pagerFragment = new PagerFragment(getSupportFragmentManager());
 
-    public void onButton(View view) {
-        if(!bluetoothAdapter.isEnabled()){
-            //bluetoothAdapter.enable();
-            Intent onIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(onIntent,0);
-            //Toast.makeText(getApplicationContext(),"Bluetooth turned on",Toast.LENGTH_SHORT).show();
-        }else {
-            Toast.makeText(getApplicationContext(),"Bluetooth already on",Toast.LENGTH_SHORT).show();
-        }
-        Toast.makeText(getApplicationContext(),"Bluetooth turned on",Toast.LENGTH_SHORT).show();
-    }
-    public void offButton(View view) {
-        bluetoothAdapter.disable();
-    }
+        pagerFragment.addFragments(new ABC(), "ABC");
+        pagerFragment.addFragments(new Numbers(), "123");
+        pagerFragment.addFragments(new Songs(), "Songs");
 
-    public void discoverableButton(View view) {
-        Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
-        startActivityForResult(discoverableIntent,0);
-        Toast.makeText(getApplicationContext(),"Bluetooth is visible for 120 secs",Toast.LENGTH_SHORT).show();
-
+        viewPager.setAdapter(pagerFragment);
+        tabLayout.setupWithViewPager(viewPager);
 
     }
-    public void pairedDevicesButton(View view) {
-        ArrayList list = new ArrayList();
-        pairedDevices = bluetoothAdapter.getBondedDevices();
 
-        if (pairedDevices.size() > 0){
-            for (BluetoothDevice devices : pairedDevices){
-                list.add(devices.getName());
-            }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.exit) {
+            finish();
         }
 
-        final ArrayAdapter adapter = new ArrayAdapter(this,android.R.layout.simple_list_item_1,list);
-        listView.setAdapter(adapter);
-
-    }
-
-    public void cancelDescovery(View view) {
-        bluetoothAdapter.cancelDiscovery();
-        Toast.makeText(getApplicationContext(),"Descovery cancelled",Toast.LENGTH_SHORT).show();
+        return super.onOptionsItemSelected(item);
     }
 }
